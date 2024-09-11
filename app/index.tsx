@@ -6,22 +6,6 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Link, router } from "expo-router";
 
 const Index = () => {
-  // useEffect(() => {
-  //   setInterval(() => {
-  //     console.log("1 min have passed");
-  //     fetch("https://shareef-money-backend.onrender.com/api/v1/accounts")
-  //       .then((res) => {
-  //         return res.json();
-  //       })
-  //       .then((data) => {
-  //         console.log(data);
-  //       })
-  //       .catch((err) => {
-  //         console.log(err);
-  //       });
-  //   }, 60000);
-  // }, []);
-
   return (
     <SafeAreaView className="bg-primary h-full justify-center items-center w-full px-4">
       <View className="">
