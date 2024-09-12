@@ -7,7 +7,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import TextInput from "@/components/TextInput";
 import Button from "@/components/Button";
-import { Link, router } from "expo-router";
+import { Link } from "expo-router";
 
 const schema = z.object({
   email: z.string().email(),

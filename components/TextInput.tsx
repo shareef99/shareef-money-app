@@ -4,8 +4,12 @@ import {
   TextInput as RNTextInput,
   Text,
   TextInputProps,
+  TouchableOpacity,
   View,
 } from "react-native";
+import { useState } from "react";
+import { colors } from "@/constants/colors";
+import Feather from "@expo/vector-icons/Feather";
 
 type Props = TextInputProps & {
   classNames?: {
@@ -17,6 +21,7 @@ type Props = TextInputProps & {
   title?: string;
   error?: FieldError;
   overrideErrorMessage?: string;
+  isPassword?: boolean;
 };
 export default function TextInput({
   className,
@@ -24,8 +29,11 @@ export default function TextInput({
   title,
   error,
   overrideErrorMessage,
+  isPassword,
   ...props
 }: Props) {
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <View className={cn("space-y-2 relative", classNames?.container)}>
       <Text
@@ -47,8 +55,18 @@ export default function TextInput({
             "flex-1 text-primary-text text-base font-semibold",
             className
           )}
+          secureTextEntry={isPassword && !showPassword}
           {...props}
         />
+        {isPassword && (
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+            {showPassword ? (
+              <Feather name="eye-off" size={24} color={colors.card.charcoal} />
+            ) : (
+              <Feather name="eye" size={24} color={colors.card.charcoal} />
+            )}
+          </TouchableOpacity>
+        )}
       </View>
       {error && (
         <Text
