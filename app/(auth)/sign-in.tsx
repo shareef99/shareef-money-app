@@ -1,4 +1,4 @@
-import { ScrollView, Text, View } from "react-native";
+import { Alert, ScrollView, Text, View } from "react-native";
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
@@ -7,7 +7,12 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import TextInput from "@/components/TextInput";
 import Button from "@/components/Button";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
+import { axiosClient } from "@/api";
+import { User } from "@/types/user";
+import { storeUser } from "@/lib/async-storage";
+import { useUserContext } from "@/context/userContext";
+import { parseError } from "@/lib/utils";
 
 const schema = z.object({
   email: z.string().email(),
@@ -17,6 +22,8 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 export default function SignIn() {
+  const { setUser } = useUserContext();
+
   // Form
   const {
     control,
@@ -32,7 +39,19 @@ export default function SignIn() {
 
   // Functions
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    console.log(data);
+    try {
+      const response = await axiosClient.post<{ message: string; user: User }>(
+        "/users/signin",
+        data
+      );
+
+      storeUser(response.data.user);
+      setUser(response.data.user);
+
+      router.replace("/(tabs)");
+    } catch (error) {
+      Alert.alert("Error", parseError(error));
+    }
   };
 
   return (
@@ -83,6 +102,7 @@ export default function SignIn() {
                     ? "Password must be at least 6 characters"
                     : undefined
                 }
+                isPassword
               />
             )}
             name="password"

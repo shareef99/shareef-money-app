@@ -1,11 +1,20 @@
-import { ScrollView, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import React, { useEffect } from "react";
 import Button from "@/components/Button";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
+import { useEffect } from "react";
+import { useUserContext } from "@/context/userContext";
 
 const Index = () => {
+  const { user } = useUserContext();
+
+  useEffect(() => {
+    if (user) {
+      router.replace("/(tabs)");
+    }
+  }, []);
+
   return (
     <SafeAreaView className="bg-primary h-full justify-center items-center w-full px-4">
       <View className="">
@@ -22,11 +31,7 @@ const Index = () => {
         <Text className="text-primary-text text-center mt-4 font-medium text-xl">
           Track your expenses, manage income, and take control of your finances
         </Text>
-        {/* 
-          IDK, why expo router types are not picking up. 
-          There is an active issue on expo@51 https://github.com/expo/expo/issues/28680 
-        */}
-        {/* @ts-ignore */}
+
         <Button className="mt-12" onPress={() => router.push("/sign-in")}>
           Get Started
         </Button>

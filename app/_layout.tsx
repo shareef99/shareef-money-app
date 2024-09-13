@@ -1,9 +1,5 @@
 import { colors } from "@/constants/colors";
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
+import { UserProvider } from "@/context/userContext";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -30,13 +26,13 @@ export default function RootLayout() {
   }
 
   return (
-    <>
+    <UserProvider>
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: true }} />
       </Stack>
       <StatusBar backgroundColor={colors.primary.DEFAULT} style="light" />
-    </>
+    </UserProvider>
   );
 }

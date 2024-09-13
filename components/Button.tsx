@@ -1,7 +1,10 @@
 import { cn } from "@/lib/utils";
 import { cva, VariantProps } from "class-variance-authority";
-import { Text, TouchableOpacity } from "react-native";
-import type { TouchableOpacityProps } from "react-native";
+import { ActivityIndicator, Text, TouchableOpacity } from "react-native";
+import type {
+  ActivityIndicatorProps,
+  TouchableOpacityProps,
+} from "react-native";
 
 const buttonVariants = cva("items-center justify-center rounded-md", {
   variants: {
@@ -29,15 +32,34 @@ const buttonVariants = cva("items-center justify-center rounded-md", {
 });
 
 type Props = TouchableOpacityProps &
-  VariantProps<typeof buttonVariants> & { textClassName?: string };
-export default function Button({ size, variant, className, ...props }: Props) {
+  VariantProps<typeof buttonVariants> & {
+    textClassName?: string;
+    isLoading?: boolean;
+    activityIndicatorProps?: ActivityIndicatorProps;
+  };
+export default function Button({
+  size,
+  variant,
+  className,
+  isLoading,
+  activityIndicatorProps,
+  ...props
+}: Props) {
   return (
     <TouchableOpacity
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
-      activeOpacity={0.8} // It is intensional, I want it to be changeable from the outside
+      // It is intensional, I don't want it to be changeable from the outside
+      onPress={isLoading ? () => {} : props.onPress}
+      activeOpacity={0.8}
     >
-      {typeof props.children === "string" ? (
+      {isLoading ? (
+        <ActivityIndicator
+          color="white"
+          size="large"
+          {...activityIndicatorProps}
+        />
+      ) : typeof props.children === "string" ? (
         <Text className={cn("text-primary-text text-lg font-semibold")}>
           {props.children}
         </Text>

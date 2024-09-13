@@ -1,5 +1,4 @@
-import { ScrollView, Text, View } from "react-native";
-import React from "react";
+import { Alert, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { colors } from "@/constants/colors";
@@ -7,10 +6,16 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import TextInput from "@/components/TextInput";
 import Button from "@/components/Button";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
+import { axiosClient } from "@/api";
+import { parseError } from "@/lib/utils";
+import { User } from "@/types/user";
+import { storeUser } from "@/lib/async-storage";
+import { useUserContext } from "@/context/userContext";
 
 const schema = z
   .object({
+    name: z.string().min(1, "Required"),
     email: z.string().email(),
     password: z.string().min(6),
     confirmPassword: z.string().min(6),
@@ -22,11 +27,13 @@ const schema = z
 type FormValues = z.infer<typeof schema>;
 
 export default function SignUp() {
+  const { setUser } = useUserContext();
+
   // Form
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
       email: "",
@@ -37,7 +44,19 @@ export default function SignUp() {
 
   // Functions
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    console.log(data);
+    try {
+      const response = await axiosClient.post<{ message: string; user: User }>(
+        "/users/signup",
+        data
+      );
+
+      storeUser(response.data.user);
+      setUser(response.data.user);
+
+      router.replace("/(tabs)");
+    } catch (error) {
+      Alert.alert("Error", parseError(error));
+    }
   };
 
   return (
@@ -52,6 +71,26 @@ export default function SignUp() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
+        <View>
+          <Controller
+            control={control}
+            rules={{
+              required: true,
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                title="Name"
+                placeholder="John Wick"
+                placeholderTextColor={colors.card.charcoal}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                error={errors.name}
+              />
+            )}
+            name="name"
+          />
+        </View>
         <View>
           <Controller
             control={control}
@@ -127,7 +166,8 @@ export default function SignUp() {
         <View>
           <Button
             className="mt-4"
-            onPress={handleSubmit(onSubmit, (error) => console.log(error))}
+            onPress={handleSubmit(onSubmit)}
+            isLoading={isSubmitting}
           >
             Sign Up
           </Button>
@@ -135,7 +175,6 @@ export default function SignUp() {
             <Text className="text-lg text-primary-text font-regular">
               Already have an account?
             </Text>
-            {/* @ts-ignore */}
             <Link href="/sign-in" className="text-lg font-medium text-accent">
               Sign In
             </Link>
